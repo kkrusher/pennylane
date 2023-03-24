@@ -1,3 +1,4 @@
+# modified from https://pennylane.ai/qml/demos/tutorial_data_reuploading_classifier.html
 import pennylane as qml
 from pennylane import numpy as np
 from pennylane.optimize import AdamOptimizer, GradientDescentOptimizer
@@ -5,6 +6,8 @@ from pennylane.optimize import AdamOptimizer, GradientDescentOptimizer
 import matplotlib.pyplot as plt
 
 from influence_function import get_influence_function
+
+from occlusion_analysis import OcclusionAnalysis
 
 # Set a random seed
 np.random.seed(42)
@@ -239,14 +242,29 @@ for i in range(num_layers):
 
 cost_fn = lambda params, x, y: cost(params, x, y, state_labels=state_labels)
 
-get_influence_function(cost_fn, params, X_train, y_train, X_test, y_test, top_n=5, hessian_approximate_number=100, plot_type='t_SNE_2d', show_plot=True)
 
-fig, axes = plt.subplots(1, 3, figsize=(10, 3))
-plot_data(X_test, initial_predictions, fig, axes[0])
-plot_data(X_test, predicted_test, fig, axes[1])
-plot_data(X_test, y_test, fig, axes[2])
-axes[0].set_title("Predictions with random weights")
-axes[1].set_title("Predictions after training")
-axes[2].set_title("True test data")
-plt.tight_layout()
-plt.show()
+
+# # get influence function 
+# get_influence_function(cost_fn, params, X_train, y_train, X_test, y_test, top_n=5, hessian_approximate_number=100, plot_type='t_SNE_2d', show_plot=True)
+
+# fig, axes = plt.subplots(1, 3, figsize=(10, 3))
+# plot_data(X_test, initial_predictions, fig, axes[0])
+# plot_data(X_test, predicted_test, fig, axes[1])
+# plot_data(X_test, y_test, fig, axes[2])
+# axes[0].set_title("Predictions with random weights")
+# axes[1].set_title("Predictions after training")
+# axes[2].set_title("True test data")
+# plt.tight_layout()
+# plt.show()
+
+
+
+# OcclusionAnalysis
+explainer = OcclusionAnalysis()
+for test_index, test_data in enumerate(zip(X_test, y_test)):
+    data = ([test_data[0]], None)
+
+    # Start explainer
+    grid = explainer.explain(qcircuit, params, data, class_index=test_data[1])
+
+    explainer.save(grid, ".", f"occlusion_{test_index}.png")

@@ -1,3 +1,6 @@
+'''
+functions for ploting results of influence function
+'''
 import pennylane as qml
 from pennylane import numpy as np
 import torch.nn as nn
@@ -5,7 +8,7 @@ from sklearn import manifold, datasets
 from torch.utils.data import DataLoader
 
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
+# from mpl_toolkits import mplot3d
 
 
 def t_SNE_3d(train_data_inputs, train_data_labels, test_data_inputs, test_data_labels, if_top_n_samples_indices, reletIF_top_n_samples_indices, test_index, result_save_dir='./', show_plot=False):

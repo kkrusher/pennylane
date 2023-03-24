@@ -4,10 +4,32 @@ import torch
 from sklearn.preprocessing import normalize
 
 import time
-from if_plot import t_SNE_2d, t_SNE_3d, plot_digit_figure
+from .utils.if_plot import t_SNE_2d, t_SNE_3d, plot_digit_figure
 
 
-def get_influence_function(cost_fn, params, train_data_inputs, train_data_labels, test_data_inputs, test_data_labels, top_n=5, hessian_approximate_number=None, log=None, plot_type='t_SNE_2d', show_plot=True, result_save_dir='./'):
+def get_influence_function(cost_fn, params, train_data_inputs, train_data_labels, test_data_inputs, test_data_labels, top_n=5, hessian_approximate_number=None, log=None, plot_type='t_SNE_2d', show_plot=True, result_save_dir='./', test_num=50):
+    """_summary_
+
+    Args:
+        cost_fn (_type_): _description_
+        params (_type_): _description_
+        train_data_inputs (_type_): _description_
+        train_data_labels (_type_): _description_
+        test_data_inputs (_type_): _description_
+        test_data_labels (_type_): _description_
+        top_n (int, optional): _description_. Defaults to 5.
+        hessian_approximate_number (_type_, optional): _description_. Defaults to None.
+        log (_type_, optional): _description_. Defaults to None.
+        plot_type (str, optional): _description_. Defaults to 't_SNE_2d'.
+        show_plot (bool, optional): _description_. Defaults to True.
+        result_save_dir (str, optional): _description_. Defaults to './'.
+        test_num (int, optional): test how many data points. Defaults to 10.
+
+    Raises:
+        RuntimeError: _description_
+    """    
+    
+    
     # we assume the cost_fn take a batch of data as input, where the first dimension record data index in a batch
     # test_data should be a batch of test data
     # plot_type should be one of ['t_SNE_2d', 't_SNE_3d', 'figure']
@@ -19,6 +41,11 @@ def get_influence_function(cost_fn, params, train_data_inputs, train_data_labels
     train_grad_on_epsilon_list, normed_train_grad_on_epsilon_list = get_grad_on_epsilon(grad_fn, hessian_I, params, train_data_inputs, train_data_labels, log=log)
 
     for test_index, test_data in enumerate(zip(test_data_inputs, test_data_labels)):
+        
+        # speedup, do not need too many figures to analyze
+        if test_index > test_num:
+            break
+
         if log is not None:
             log.info(f"test_index: {test_index}, data: {test_data}")
 
